@@ -147,14 +147,14 @@ function verifyRequest() {
     if (!token)
       return next(new http403('Missing valid Authorization header'))
 
+    var parts;
     try {
-      const parts = jws.decode(token) }
+      parts = jws.decode(token) }
     catch (e) {
       log.warn({code: 'JWTDecodeError', token: token}, 'Could not decode JWT')
       return next(new http403('Could not decode JWT'))
     }
 
-    const parts = jws.decode(token)
     const auth = parts.payload
     if (!auth)
       return next(new http403('Missing JWT payload'))
@@ -186,8 +186,9 @@ function verifyRequest() {
         return next(new http403('Missing JWT claim: body.hash'))
 
       const givenHash = auth.body.hash
+      var computedHash;
       try {
-        const computedHash = hash(auth.body.alg, req._body)
+        computedHash = hash(auth.body.alg, req._body)
       } catch (e) {
         return next(new http403('Could not calculate hash, unsupported algorithm: '+auth.body.alg))
       }
